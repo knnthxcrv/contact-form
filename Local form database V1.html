@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form with Import/Export</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to right, #f0f0f0, #e0e0e0);
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin: 0 0 10px;
+        }
+        .time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 4px 0;
+            color: #444;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            transition: border 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        input[type="button"], input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 4px;
+            margin-right: 5px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        input[type="button"]:hover, input[type="submit"]:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: left;
+            font-size: 12px;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .actions button {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            margin-right: 5px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .actions button:hover {
+            background-color: #e68900;
+            transform: scale(1.05);
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin: -5px 0 10px;
+        }
+        .success-message {
+            color: green;
+            font-size: 12px;
+            margin: -5px 0 10px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Contact Form</h2>
+        <div class="time">
+            <div id="estTime">EST: </div>
+            <div id="phTime">Philippine Time: </div>
+        </div>
+        <div class="error-message" id="errorDisplay"></div>
+        <div class="success-message" id="successDisplay"></div>
+        <form id="contactForm">
+            <label for="search">Search:</label>
+            <input type="text" id="search" oninput="searchRecords()" placeholder="Search by name, ticket number, email, or number">
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name"required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email"required>
+
+            <label for="department">Department:</label>
+            <input type="text" id="department" name="department"required>
+
+            <label for="number">Number:</label>
+            <input type="text" id="number" name="number">
+
+            <label for="ticketNumber">Ticket Number:</label>
+            <input type="text" id="ticketNumber" name="ticketNumber">
+
+            <label for="umsLocalName">UMS Local Name:</label>
+            <input type="text" id="umsLocalName" name="umsLocalName">
+
+            <label for="anydeskId">Anydesk ID:</label>
+            <input type="text" id="anydeskId" name="anydeskId">
+
+            <label for="problem">Problem:</label>
+            <input type="text" id="problem" name="problem">
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="3"></textarea>
+
+            <label for="remarks">Remarks:</label>
+            <select id="remarks" name="remarks">
+                <option value="solved">Solved</option>
+                <option value="for_call_back">For Call Back</option>
+                <option value="for_escalation">For Escalation</option>
+            </select>
+
+            <div class="actions">
+                <input type="button" value="Submit" onclick="submitForm()">
+                <input type="button" value="Reset" onclick="resetForm()">
+                <input type="button" value="Export" onclick="exportData()">
+                <input type="file" id="importFile" onchange="importData()" style="display: none;">
+                <input type="button" value="Import" onclick="document.getElementById('importFile').click()">
+            </div>
+        </form>
+
+        <h2>Previous Records</h2>
+        <div style="overflow-x: auto;">
+            <table id="recordsTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortRecords('name')">Name</th>
+                        <th onclick="sortRecords('email')">Email</th>
+                        <th onclick="sortRecords('department')">Department</th>
+                        <th onclick="sortRecords('ticketNumber')">Ticket Number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Records will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <button id="prevBtn" onclick="prevPage()" disabled>Previous</button>
+            <button id="nextBtn" onclick="nextPage()">Next</button>
+        </div>
+    </div>
+
+    <script>
+        let records = JSON.parse(localStorage.getItem('records')) || [];
+        let currentIndex = null;
+        let currentPage = 1;
+        const recordsPerPage = 5;
+
+        function updateTime() {
+            const options = { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const estTime = new Date().toLocaleTimeString('en-US', options);
+            document.getElementById('estTime').textContent = `EST: ${estTime}`;
+
+            const phOptions = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const phTime = new Date().toLocaleTimeString('en-US', phOptions);
+            document.getElementById('phTime').textContent = `Philippine Time: ${phTime}`;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function submitForm() {
+            const errorDisplay = document.getElementById('errorDisplay');
+            const successDisplay = document.getElementById('successDisplay');
+            errorDisplay.textContent = '';
+            successDisplay.textContent = '';
+
+            const formData = {
+                name: document.querySelector('#name').value.trim(),
+                email: document.querySelector('#email').value.trim(),
+                department: document.querySelector('#department').value.trim(),
+                number: document.querySelector('#number').value.trim(),
+                ticketNumber: document.querySelector('#ticketNumber').value.trim(),
+                umsLocalName: document.querySelector('#umsLocalName').value.trim(),
+                anydeskId: document.querySelector('#anydeskId').value.trim(),
+                problem: document.querySelector('#problem').value.trim(),
+                description: document.querySelector('#description').value.trim(),
+                remarks: document.querySelector('#remarks').value
+            };
+
+            if (!formData.name || !formData.email || !formData.department) {
+                errorDisplay.textContent = 'Please fill in all the required fields (name, email, department).';
+                return;
+            }
+
+            if (currentIndex !== null) {
+                records[currentIndex] = formData;
+                currentIndex = null;
+            } else {
+                records.push(formData);
+            }
+
+            localStorage.setItem('records', JSON.stringify(records));
+            successDisplay.textContent = 'Record submitted successfully!';
+            resetForm();
+            updateTable();
+        }
+
+        function resetForm() {
+            document.getElementById('contactForm').reset();
+            currentIndex = null;
+        }
+
+        function updateTable() {
+            const tbody = document.querySelector('#recordsTable tbody');
+            tbody.innerHTML = '';
+            const start = (currentPage - 1) * recordsPerPage;
+            const end = start + recordsPerPage;
+            const pageRecords = records.slice(start, end);
+
+            pageRecords.forEach((record, index) => {
+                const row = `<tr>
+                    <td>${record.name}</td>
+                    <td>${record.email}</td>
+                    <td>${record.department}</td>
+                    <td>${record.ticketNumber}</td>
+                    <td>
+                        <button onclick="editRecord(${start + index})">Edit</button>
+                        <button onclick="deleteRecord(${start + index})">Delete</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = end >= records.length;
+        }
+
+        function editRecord(index) {
+            const record = records[index];
+            document.querySelector('#name').value = record.name;
+            document.querySelector('#email').value = record.email;
+            document.querySelector('#department').value = record.department;
+            document.querySelector('#number').value = record.number;
+            document.querySelector('#ticketNumber').value = record.ticketNumber;
+            document.querySelector('#umsLocalName').value = record.umsLocalName;
+            document.querySelector('#anydeskId').value = record.anydeskId;
+            document.querySelector('#problem').value = record.problem;
+            document.querySelector('#description').value = record.description;
+            document.querySelector('#remarks').value = record.remarks;
+            currentIndex = index;
+        }
+
+        function deleteRecord(index) {
+            records.splice(index, 1);
+            localStorage.setItem('records', JSON.stringify(records));
+            updateTable();
+        }
+
+        function searchRecords() {
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            const filteredRecords = records.filter(record => {
+                return (
+                    record.name.toLowerCase().includes(searchValue) ||
+                    record.email.toLowerCase().includes(searchValue) ||
+                    record.ticketNumber.toLowerCase().includes(searchValue) ||
+                    record.number.toLowerCase().includes(searchValue)
+                );
+            });
+            renderFilteredTable(filteredRecords);
+        }
+
+        function renderFilteredTable(filteredRecords) {
+            const tbody = document.querySelector('#recordsTable tbody');
+            tbody.innerHTML = '';
+            filteredRecords.forEach((record, index) => {
+                const row = `<tr>
+                    <td>${record.name}</td>
+                    <td>${record.email}</td>
+                    <td>${record.department}</td>
+                    <td>${record.ticketNumber}</td>
+                    <td>
+                        <button onclick="editRecord(${index})">Edit</button>
+                        <button onclick="deleteRecord(${index})">Delete</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function sortRecords(key) {
+            records.sort((a, b) => a[key].localeCompare(b[key]));
+            localStorage.setItem('records', JSON.stringify(records));
+            updateTable();
+        }
+
+        function nextPage() {
+            if ((currentPage * recordsPerPage) < records.length) {
+                currentPage++;
+                updateTable();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateTable();
+            }
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(records, null, 2); // Convert records to JSON
+            const blob = new Blob([dataStr], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'records.txt'; // File name for download
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0]; // Get the first selected file
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result); // Parse the file content
+                        if (Array.isArray(importedData)) {
+                            records = records.concat(importedData); // Merge with existing records
+                            localStorage.setItem('records', JSON.stringify(records)); // Save to localStorage
+                            updateTable(); // Update the table
+                            alert('Data imported successfully!');
+                        } else {
+                            alert('Invalid file format.');
+                        }
+                    } catch (error) {
+                        alert('Error reading file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file); // Read the file as text
+            }
+        }
+
+        window.onload = updateTable;
+    </script>
+</body>
+</html>
